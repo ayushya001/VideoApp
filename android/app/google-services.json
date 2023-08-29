@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "845022989386",
+    "project_id": "videorells-cca9b",
+    "storage_bucket": "videorells-cca9b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845022989386:android:236e301b0c761ddbb76ab3",
+        "android_client_info": {
+          "package_name": "com.example.assignmentvideo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "845022989386-u838pv4atu9qbe2ijttrdlf2ma73r53f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd-hp2qm_eTtypvfdMlXI49b_Vhywd8T8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "845022989386-u838pv4atu9qbe2ijttrdlf2ma73r53f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
