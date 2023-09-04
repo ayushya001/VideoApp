@@ -5,6 +5,7 @@ import 'package:assignmentvideo/Screens/Home.dart';
 import 'package:assignmentvideo/Screens/SplashScreen.dart';
 import 'package:assignmentvideo/Screens/Verify.dart';
 import 'package:assignmentvideo/Screens/homes.dart';
+import 'package:assignmentvideo/Screens/location.dart';
 import 'package:assignmentvideo/Screens/profileDetails.dart';
 import 'package:assignmentvideo/widgets/upload.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,8 +21,7 @@ class Routes{
       case RoutesName.login:
         return MaterialPageRoute(builder: (BuildContext context ) => const Login());
 
-      case RoutesName.home:
-        return MaterialPageRoute(builder: (BuildContext context ) => const HomeScreen());
+
 
 
 
@@ -33,6 +33,9 @@ class Routes{
 
       case RoutesName.homesScreen:
         return MaterialPageRoute(builder: (BuildContext context ) => const homes());
+
+      case RoutesName.locationScreen:
+        return MaterialPageRoute(builder: (BuildContext context ) => const locations());
 
 
 

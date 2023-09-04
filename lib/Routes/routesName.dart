@@ -21,6 +21,8 @@ class RoutesName{
 
   static const String homesScreen  = "Home_screen";
 
+  static const String locationScreen  = "Location_screen";
+
 
 
 

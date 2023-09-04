@@ -7,12 +7,14 @@ import 'package:assignmentvideo/Utils/general_utils.dart';
 import 'package:assignmentvideo/widgets/RoundButton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
 class uploadform extends StatefulWidget {
 
   final File videoFile;
   final String videoPath;
+
 
 
   const uploadform({Key? key, required this.videoFile, required this.videoPath}) : super(key: key);
@@ -24,6 +26,7 @@ class uploadform extends StatefulWidget {
 class _uploadformState extends State<uploadform> {
 
   late VideoPlayerController _playerController;
+  String? selectedCity;
 
   late String title;
   TextEditingController _textEditingController = TextEditingController();
@@ -32,6 +35,8 @@ class _uploadformState extends State<uploadform> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    getCurrentlocation();
 
     _playerController = VideoPlayerController.file(widget.videoFile);
 
@@ -75,7 +80,7 @@ class _uploadformState extends State<uploadform> {
                   children: [
                     Icon(Icons.pin_drop),
                     SizedBox(width: mq.width*0.03,),
-                    Text("Khagaria")
+                    // Text(selectedCity?? "waiting...")
                   ],
                 ),
               ),
@@ -106,8 +111,7 @@ class _uploadformState extends State<uploadform> {
               Padding(
                 padding:  EdgeInsets.only(top: mq.height*0.05),
                 child: RoundButton(title: "Upload", onpress: (){
-                  Utils.flushBarErrorMessage(title, context);
-                  authProvider.saveVideInformationToFirebaseDataBase(title,"khagaria", widget.videoPath, context);
+                  authProvider.saveVideInformationToFirebaseDataBase(title, selectedCity!,widget.videoPath, context);
                   _playerController.dispose();
 
                 }),
@@ -117,5 +121,13 @@ class _uploadformState extends State<uploadform> {
         ),
       ),
     );
+  }
+
+  void getCurrentlocation() async  {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedCity = prefs.getString('currentlocation');
+    print("the selected city is"+ selectedCity!);
+
   }
 }

@@ -1,6 +1,7 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:assignmentvideo/Routes/routes.dart';
 import 'package:assignmentvideo/Routes/routesName.dart';
+import 'package:assignmentvideo/Screens/Home.dart';
 import 'package:assignmentvideo/Screens/login.dart';
 import 'package:assignmentvideo/Utils/general_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -49,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
           ],
         ),
       ),
-      nextScreen: Login(),
+      nextScreen: _auth.currentUser != null ? HomeScreen() : Login(),
       splashTransition: SplashTransition.fadeTransition,
       backgroundColor: Colors.blue,
       duration: 6000,
@@ -62,6 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
       final user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
+        Utils.flushBarErrorMessage("user is not null", context);
         final uid = user.uid;
         // Check if the user has required data (name and profile pic) in the database
         DocumentSnapshot userData = await FirebaseFirestore.instance.collection(
@@ -71,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen> {
           // User is authenticated and has required data, navigate to the main screen
           Navigator.push(
             context,
-            Routes.generateRoute(RouteSettings(name: RoutesName.home)),
+            Routes.generateRoute(RouteSettings(name: RoutesName.homesScreen)),
           );
         } else {
           // User is authenticated but doesn't have required data, navigate to the details screen
@@ -80,7 +82,9 @@ class _SplashScreenState extends State<SplashScreen> {
             Routes.generateRoute(RouteSettings(name: RoutesName.DetailsScreen)),
           );
         }
-      } else {
+      }
+       else {
+
         Navigator.push(
           context,
           Routes.generateRoute(RouteSettings(name: RoutesName.login)),
@@ -88,7 +92,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     }catch(e){
 
-      print(e.toString());
+      print("the error of log in is:-" +e.toString());
 
     }
 

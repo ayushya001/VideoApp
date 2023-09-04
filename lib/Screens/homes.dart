@@ -3,11 +3,15 @@ import 'dart:io';
 import 'package:assignmentvideo/Model/videoModel.dart';
 import 'package:assignmentvideo/Utils/ComponentsColors.dart';
 import 'package:assignmentvideo/widgets/UpperWidget.dart';
+import 'package:assignmentvideo/widgets/VideoThumbnail.dart';
 import 'package:assignmentvideo/widgets/upload.dart';
 import 'package:assignmentvideo/widgets/videoPlayerWidget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class homes extends StatefulWidget {
   const homes({Key? key}) : super(key: key);
@@ -18,6 +22,8 @@ class homes extends StatefulWidget {
 
 class _homesState extends State<homes> {
 
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -27,8 +33,11 @@ class _homesState extends State<homes> {
 
   @override
   Widget build(BuildContext context) {
+    List<videoModel>  videos =[];
+
 
     final mq = MediaQuery.of(context).size;
+
 
 
     return  Scaffold(
@@ -36,6 +45,7 @@ class _homesState extends State<homes> {
       floatingActionButton: FloatingActionButton(
         onPressed: (){
           getVideoFile(ImageSource.camera);
+          getLocation();
 
         },
         tooltip: 'Increment',
@@ -47,94 +57,48 @@ class _homesState extends State<homes> {
           children: [
             UpperWidget(),
             Expanded(
-              child: FutureBuilder<List<videoModel>>(
-                future: fetchVideosFromFirestore(),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection("Videos").snapshots(),
                 builder: (context, snapshot) {
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No videos available.'));
-                  } else {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) {
-                        videoModel video = snapshot.data![index];
+                    print("this is still waiting");
+                        }
+                  else if (snapshot.connectionState == ConnectionState.active ||
+                      snapshot.connectionState == ConnectionState.done) {
 
-                        return Column(
-                          children: [
-                            Container(
-                              height: 1,
-                              color: ComponentsColor.borderColorTextformfield,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: mq.width*0.01,right: mq.width*0.015,top: mq.height*0.002),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 20,
-                                    child: Icon(Icons.dangerous),
-                                  ),
-                                  SizedBox(width: mq.width*0.02,),
-                                  Text("ayush",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold
-                                    ),),
-                                  Spacer(),
-                                  Icon(Icons.pin_drop),
-                                  Text("maharastra")
+                    if (snapshot.hasError) {
+                      return const Text('Error');
+                    }
+                    else if (snapshot.hasData) {
+                      print("this mean snapshot has data");
 
-                                ],
-                              ),
-                            ),
-                            Container(
-                              height: 1,
-                              color: ComponentsColor.borderColorTextformfield,
-                            ),
-                            AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: VideoPlayerWidget(video.videoUrl),
-                            ),
-                            // child: Image.asset("assets/images/male.jpg"),
-                            //   ),
-                            Container(
-                              height: 1,
-                              color: ComponentsColor.borderColorTextformfield,
-                            ),
-                            Padding(
-                              padding:  EdgeInsets.only(left: mq.width*0.01),
-                              child: Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(video.title,
-                                  style: TextStyle(
-                                      fontSize: 16
-                                  ),),),
-                            ),
-                            Container(
-                              height: 1,
-                              color: ComponentsColor.borderColorTextformfield,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: mq.width*0.01,right: mq.width*0.015,bottom: mq.height*0.002),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.thumb_up),
-                                  SizedBox(width: mq.width*0.02,),
-                                  Text("56"),
-                                  Spacer(),
-                                  Text("2 days ago")
-                                ],
-                              ),
 
-                            )
-                          ],
-                        );
-                      },
-                    );
+                      // final data = snapshot.data?.docs;
+                      final data = snapshot.data!.docs;
+
+                      videos = data
+                          .map((e) => videoModel.fromJson(e.data() as Map<String, dynamic>))
+                          .toList();
+
+                      // print("the length of chatuser is"+ chatuser.toString());
+
+
+                      return ListView.builder(
+                        itemCount: videos.length,
+                        itemBuilder: ( context, index) {
+
+                          return  VideoThumbnail(videoData: videos[index],);
+                        },
+                      );
+                    } else {
+                      return const Text('No data available.'); // Handle case when snapshot has no data
+                    }
                   }
-                },
+                  return const Text('Unknown error');
+
+                  }
+
               ),
             ),
           ],
@@ -143,32 +107,6 @@ class _homesState extends State<homes> {
     );
   }
 
-  ///for fututre
-  // AspectRatio(
-  // aspectRatio: 16 / 9,
-  // child: VideoPlayerWidget(video.videoUrl),
-  // ),
-
-
-    Future<List<videoModel>> fetchVideosFromFirestore() async {
-      final QuerySnapshot<Map<String, dynamic>> snapshot =
-      await FirebaseFirestore.instance.collection('Videos').get();
-
-      print("we get"+await FirebaseFirestore.instance.collection('Videos').get().toString());
-
-      List<videoModel> videos = [];
-      snapshot.docs.forEach((doc) {
-        videos.add(videoModel(
-          title: doc['title'],
-          time: doc['PublishDateandtime'],
-          videoId: doc['videoId'],
-          videoUrl: doc['videoUrl'],
-        ));
-      });
-
-      return videos;
-
-  }
 
   void getVideoFile(ImageSource sourceImg) async {
     final videoFile = await ImagePicker().pickVideo(source: sourceImg);
@@ -187,5 +125,46 @@ class _homesState extends State<homes> {
 
       );
     }
+  }
+  void getLocation() async {
+    LocationPermission Curentpermission = await Geolocator.requestPermission();
+
+
+    // Permission granted, get the current location
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+
+
+      if(permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever){
+        print("Permission is not given");
+        LocationPermission Curentpermission = await Geolocator.requestPermission();
+      }else{
+        Position currentPosition = await Geolocator.getCurrentPosition
+          (desiredAccuracy: LocationAccuracy.best);
+        print("Longitude : "+currentPosition.longitude.toString());
+        print("Latitude : "+currentPosition.latitude.toString());
+
+        // Use reverse geocoding to get the city or village name
+        List<Placemark> placemarks = await placemarkFromCoordinates(currentPosition.latitude, currentPosition.longitude);
+
+        if (placemarks.isNotEmpty) {
+           String? city = placemarks[0].locality; // City name
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('currentlocation', city!);
+          String? village = placemarks[0].subLocality; // Village name (if available)
+
+          print("City: $city");
+
+        } else {
+          print("No placemarks found");
+        }
+      }
+
+    }
+    catch (e) {
+      print("Error getting location: $e");
+    }
+
   }
 }

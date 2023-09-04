@@ -48,6 +48,11 @@ dependencies:
   permission_handler: ^10.4.3
   video_player: ^2.7.0
   video_compress: ^3.1.2
+  geolocator: ^10.0.0
+  geocoding: ^2.1.0
+  shared_preferences:
+  cached_network_image: ^3.2.3
+
 
 
 

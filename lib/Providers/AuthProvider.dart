@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_compress/video_compress.dart';
 
 class Authprovider extends ChangeNotifier {
@@ -86,7 +87,7 @@ class Authprovider extends ChangeNotifier {
     }
   }
 
-  Details(TextEditingController namecontroller , TextEditingController emailcontroller , String imagepath , BuildContext context) async
+  Details(TextEditingController namecontroller , TextEditingController emailcontroller , String imagepath , BuildContext context, ) async
   {
 
     String auth  = FirebaseAuth.instance.currentUser!.uid;
@@ -120,7 +121,7 @@ class Authprovider extends ChangeNotifier {
         Navigator.push(
           context,
           Routes.generateRoute(
-              RouteSettings(name: RoutesName.home)),
+              RouteSettings(name: RoutesName.homesScreen)),
         );
         setloading(false);
         namecontroller.clear();
@@ -205,11 +206,15 @@ class Authprovider extends ChangeNotifier {
         // 'userProfilepic': (userDocumentSnapshot.data() as Map<String,dynamic>)['image'],
         'videoId': videoId,
         'title' : title,
+        'by' : "ayush kumar",
         'location':location,
         'videoUrl': VideoDownloadUrl,
         'thumbnailUrl': thumbnailDownloadUrl,
+
         'PublishDateandtime': DateTime.now().millisecondsSinceEpoch,
       };
+
+
 
       await FirebaseFirestore.instance.collection("Videos").doc(videoId).set(videos);
 
@@ -220,6 +225,8 @@ class Authprovider extends ChangeNotifier {
                 HomeScreen())
       );
       setloading(false);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.remove('currentlocation');
 
     }catch(e){
       setloading(false);
